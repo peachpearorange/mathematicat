@@ -3467,14 +3467,14 @@ GROUPS.forEach(g => {
 // ---------------------------------------------------------------- state
 const MODEL = "deepseek/deepseek-v4-flash-0731";
 
-// The key is XOR-folded and base64'd so its recognisable prefix never appears in
-// the served HTML, which is what automated harvesters grep for. It is not
-// secret: it rides in the Authorization header and anyone opening the network
-// tab can read it. The real bounds on abuse are the model allowlist and the
-// spend cap set on the key at OpenRouter. Regenerate with mask_key.py.
+// XOR-folded and base64'd so neither the recognisable prefix nor a telltale
+// variable name appears in the served HTML, which is what automated harvesters
+// grep for. It is not secret: it rides in the Authorization header and anyone
+// opening the network tab can read it. The real bounds on abuse are the model
+// allowlist and the spend cap set at OpenRouter. Regenerate with mask_key.py.
 const unmask = (b, p = "mathematicat") =>
   [...atob(b)].map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ p.charCodeAt(i % p.length))).join("");
-const API_KEY = unmask("REDACTED_SEE_key.js");
+const credential = unmask("REDACTED_SEE_key.js");
 
 const el = id => document.getElementById(id);
 const cat = el("cat"), bubble = el("bubble"), reveal = el("reveal");
@@ -3591,7 +3591,7 @@ async function grade(entry, response) {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "Authorization": "Bearer " + API_KEY,
+      "Authorization": "Bearer " + credential,
       "Content-Type": "application/json",
       "HTTP-Referer": location.origin || "https://localhost",
       "X-Title": "MathematiCat"
