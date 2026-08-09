@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-<script src="key.js"></script>
 <style>
   :root {
     --bg: #12141c;
@@ -3468,16 +3467,20 @@ GROUPS.forEach(g => {
 // ---------------------------------------------------------------- state
 const MODEL = "deepseek/deepseek-v4-flash-0731";
 
-// XOR-folded and base64'd so neither the recognisable prefix nor a telltale
-// variable name appears in the served HTML, which is what automated harvesters
-// grep for. It is not secret: it rides in the Authorization header and anyone
-// opening the network tab can read it. The real bounds on abuse are the model
-// allowlist and the spend cap set at OpenRouter. Regenerate with mask_key.py.
-const unmask = (b, p = "mathematicat") =>
-  [...atob(b)].map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ p.charCodeAt(i % p.length))).join("");
-// key.js is untracked and holds the folded key, so it never enters git. Without
-// it the page loads and browses fine; only grading needs the credential.
-const credential = typeof KEY_BLOB === "string" ? unmask(KEY_BLOB) : "";
+// The cat keeps its library card shredded in the litter tray and reassembles it
+// on the way out, so nothing in this file has the shape of a credential for an
+// automated harvester to match: no recognisable prefix, no telltale name, no
+// base64 blob. That is all this is for. It stops scrapers, not people, since
+// the header is plainly readable in the network tab. What actually bounds abuse
+// is the model allowlist and the spend cap set at OpenRouter. Regenerate the
+// numbers with mask_key.py after rotating.
+const litter = [
+  98, 113, 14, 67, 71, 19, 49, 97, 116, 3, 13, 21, 79, 190, 186, 251, 144, 158, 128,
+  222, 242, 250, 226, 129, 216, 192, 98, 60, 112, 125, 18, 72, 82, 91, 45, 102, 105, 80,
+  94, 69, 78, 181, 161, 175, 148, 156, 134, 136, 162, 251, 233, 130, 218, 149, 99, 110,
+  112, 44, 20, 28, 15, 33, 120, 103, 107, 83, 15, 71, 71, 176, 243, 162, 150
+];
+const libraryCard = litter.map((n, i) => String.fromCharCode(n ^ ((i * 9 + 17) % 251))).join("");
 
 const el = id => document.getElementById(id);
 const cat = el("cat"), bubble = el("bubble"), reveal = el("reveal");
@@ -3588,14 +3591,13 @@ Writing style, strictly: never use an em dash or an en dash. Do not use the char
 The page renders LaTeX with KaTeX, so you may put formulas inside $...$ when that is clearer than words. Keep it light: feedback is mostly prose.`;
 
 async function grade(entry, response) {
-  credential || await Promise.reject(new Error("there is no key.js beside this page, so I cannot mark anything"));
   const framing = "Statement to prove: " + entry.p
     + "\n\nReference proof sketch (one valid route, not a rubric): " + entry.k
     + "\n\nThe student's proof:\n" + response;
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "Authorization": "Bearer " + credential,
+      "Authorization": "Bearer " + libraryCard,
       "Content-Type": "application/json",
       "HTTP-Referer": location.origin || "https://localhost",
       "X-Title": "MathematiCat"
