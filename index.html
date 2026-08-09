@@ -4412,13 +4412,14 @@ const el = id => document.getElementById(id);
 const cat = el("cat"), bubble = el("bubble"), reveal = el("reveal");
 const proofBox = el("proof"), submitBtn = el("submit"), skipBtn = el("skip"), giveupBtn = el("giveup");
 
-let deck = [], current = null, answered = false, busy = false;
-
-const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+let current = null, answered = false, busy = false;
 
 // ---------------------------------------------------------------- progress
 // Solved and seen live in the browser as problem ids, so the picker can show
-// what has been done and the random draw can avoid repeating solved work.
+// what has been done and the random draw can avoid repeating solved work. The
+// problem in hand is saved alongside them, since the ladder walk starts from
+// whatever you are on, and without it a reload would drop you back among the
+// warm-ups you had skipped.
 const STORE = "mathematicat.v1";
 const stored = (() => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } })();
 const solvedSet = new Set(stored.solved || []), seenSet = new Set(stored.seen || []);
@@ -4427,7 +4428,7 @@ let streak = stored.streak || 0;
 function saveProgress() {
   // Some browsers refuse storage on a file:// page or in private mode. Losing
   // the history is survivable; losing the game to an exception is not.
-  try { localStorage.setItem(STORE, JSON.stringify({ solved: [...solvedSet], seen: [...seenSet], streak })); } catch {}
+  try { localStorage.setItem(STORE, JSON.stringify({ solved: [...solvedSet], seen: [...seenSet], streak, at: current?.id })); } catch {}
   el("s-solved").textContent = solvedSet.size;
   el("s-streak").textContent = streak;
   el("s-seen").textContent = seenSet.size;
@@ -4575,23 +4576,23 @@ function loadProblem(entry, greeting) {
   greeting ? say(greeting) : bubble.classList.add("hidden");
 }
 
-// The random draw walks a shuffled deck of unsolved problems, falling back to
-// the whole bank once every one of them has been proved.
+// The draw is a walk in problem order: from the current number upwards to the
+// first unsolved one, wrapping past the end of the group back to #1.
 // Skipping keeps you inside the group you are working through, so a sitting
 // stays at one difficulty instead of lurching from a warm-up to the IMO. Once a
-// group is finished the draw walks forward along the ladder to the next group
-// with anything left, which is also how a fresh visitor starts on the warm-ups:
-// with no current problem the walk begins at the gentlest group.
+// group is finished the walk carries on along the ladder to the next group with
+// anything left, which is also how a fresh visitor starts on the warm-ups: with
+// no current problem the walk begins at #1 of the gentlest group.
 function nextProblem(greeting) {
-  const unsolved = g => g.items.filter(e => !solvedSet.has(e.id) && e !== current);
   const from = Math.max(0, GROUPS.findIndex(g => g.id === (current ? current.group : GROUPS[0].id)));
   const ladder = GROUPS.slice(from).concat(GROUPS.slice(0, from));
-  const group = ladder.find(g => unsolved(g).length) || ladder[0];
-  // A fresh deck per group, so skipping cycles through it rather than repeating.
-  deck = deck.filter(e => e.group === group.id && !solvedSet.has(e.id) && e !== current);
-  deck.length || (deck = shuffle(unsolved(group)));
-  deck.length || (deck = shuffle(group.items.filter(e => e !== current)));
-  loadProblem(deck.pop(), greeting);
+  // Only the group in hand is entered partway through; every later one is read
+  // from its start.
+  const order = g => (n => g.items.slice(n).concat(g.items.slice(0, n)))(g === ladder[0] && current ? current.n : 0);
+  const found = ladder.reduce((hit, g) => hit || order(g).find(e => !solvedSet.has(e.id) && e !== current), null);
+  // With the whole bank proved there is nothing to search for, so the walk just
+  // steps to the next number and lets you revisit it.
+  loadProblem(found || order(ladder[0])[0], greeting);
 }
 
 async function submit() {
@@ -4725,7 +4726,10 @@ el("reset").onclick = () => {
 // KaTeX is deferred, so re-render the first problem once it has loaded.
 addEventListener("load", () => current && renderMath(el("problem"), current.p));
 
-nextProblem("I am the MathematiCat. Welcome to the proof puzzle game. Write your argument, and my ruler shall judge its rigour.");
+const resumed = BANK.find(e => e.id === stored.at);
+resumed
+  ? loadProblem(resumed, "You are back. This is where we left off, and my ruler has not moved either.")
+  : nextProblem("I am the MathematiCat. Welcome to the proof puzzle game. Write your argument, and my ruler shall judge its rigour.");
 </script>
 </body>
 </html>
