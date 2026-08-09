@@ -6,3 +6,6 @@ import/*.log
 
 __pycache__/
 *.pyc
+
+# Holds the folded API key. Never commit this.
+key.js
