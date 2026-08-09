@@ -1,0 +1,8 @@
+# Downloaded UKMT PDFs and the pipeline's intermediates. Bulky, and the papers
+# are not ours to redistribute.
+import/pdf/
+import/*.json
+import/*.log
+
+__pycache__/
+*.pyc
