@@ -18,6 +18,14 @@
     --accent: #ffc94d;
     --good: #5bd18a;
     --bad: #ef6f6f;
+
+    /* Type scale. Everything picks a step; nothing invents its own size. */
+    --t-xs: 12px;      /* tags, row numbers */
+    --t-sm: 13.5px;    /* meta: hints, notes, counts, credits */
+    --t-ui: 15px;      /* buttons, section headings, the cat */
+    --t-read: 16.5px;  /* anything you actually read or type */
+    --t-lg: 20px;      /* problem statement, score figures */
+    --t-xl: 26px;      /* title */
   }
   * { box-sizing: border-box; }
   body {
@@ -25,18 +33,18 @@
     min-height: 100vh;
     background: radial-gradient(1200px 700px at 70% -10%, #232a3d 0%, var(--bg) 60%);
     color: var(--ink);
-    font: 16px/1.55 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font: var(--t-read)/1.55 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
     /* Narrow default: the cat sits below the content, so reserve height for it. */
     padding: 28px 20px 250px;
   }
   .wrap { max-width: 760px; margin: 0 auto; }
 
   header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
-  h1 { font-size: 26px; margin: 0; letter-spacing: .3px; }
+  h1 { font-size: var(--t-xl); margin: 0; letter-spacing: .3px; }
   h1 span { color: var(--accent); }
   .right { display: flex; align-items: baseline; gap: 20px; }
-  .scores { display: flex; gap: 18px; font-size: 14px; color: var(--dim); }
-  .scores b { display: block; font-size: 22px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .scores { display: flex; gap: 18px; font-size: var(--t-sm); color: var(--dim); }
+  .scores b { display: block; font-size: var(--t-lg); color: var(--ink); font-variant-numeric: tabular-nums; }
   .scores .n-solved b { color: var(--good); }
 
   .card {
@@ -46,8 +54,8 @@
     padding: 26px 28px;
     box-shadow: 0 18px 40px -24px #000;
   }
-  .tag { font: 600 11px/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
-  .problem { font-size: 20px; line-height: 1.6; }
+  .tag { font: 600 var(--t-xs)/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
+  .problem { font-size: var(--t-lg); line-height: 1.6; }
   .problem sup { font-size: .72em; }
 
   textarea {
@@ -60,21 +68,21 @@
     border-radius: 10px;
     padding: 18px 20px;
     color: var(--ink);
-    font: 16px/1.7 "Iowan Old Style", Palatino, Georgia, serif;
+    font: var(--t-read)/1.7 "Iowan Old Style", Palatino, Georgia, serif;
     tab-size: 4;
   }
   textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px #ffc94d22; }
   textarea:disabled { opacity: .6; }
 
   .bar { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-  .hint { flex: 1; font-size: 12.5px; color: var(--dim); font-family: ui-sans-serif, system-ui, sans-serif; }
+  .hint { flex: 1; font-size: var(--t-sm); color: var(--dim); font-family: ui-sans-serif, system-ui, sans-serif; }
   button {
     background: var(--accent);
     color: #241d05;
     border: 0;
     border-radius: 9px;
     padding: 12px 20px;
-    font: 600 15px/1 ui-sans-serif, system-ui, sans-serif;
+    font: 600 var(--t-ui)/1 ui-sans-serif, system-ui, sans-serif;
     cursor: pointer;
     transition: transform .08s, filter .15s;
   }
@@ -89,14 +97,14 @@
     margin-top: 18px; padding: 0 18px;
     max-height: 0; overflow: hidden; opacity: 0;
     border-left: 3px solid var(--accent);
-    font-size: 15.5px; color: #cdd2e2;
+    font-size: var(--t-read); color: #cdd2e2;
     transition: max-height .4s, opacity .3s, padding .4s;
   }
   .reveal.open { max-height: 60vh; overflow-y: auto; opacity: 1; padding: 14px 18px; }
-  .reveal b { color: var(--accent); display: block; margin-bottom: 5px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-family: ui-sans-serif, system-ui, sans-serif; }
+  .reveal b { color: var(--accent); display: block; margin-bottom: 5px; font-size: var(--t-xs); letter-spacing: .1em; text-transform: uppercase; font-family: ui-sans-serif, system-ui, sans-serif; }
 
   /* Attribution for redistributed problem sets, added by build_public.py. */
-  .credit { margin: 22px 2px 0; font: 12.5px/1.6 ui-sans-serif, system-ui, sans-serif; color: var(--dim); }
+  .credit { margin: 22px 2px 0; font: var(--t-sm)/1.6 ui-sans-serif, system-ui, sans-serif; color: var(--dim); }
   .credit a { color: var(--dim); }
 
   /* ---------- problem picker ---------- */
@@ -110,28 +118,28 @@
   }
   .picker-head, .picker-foot { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
   .picker-foot { border-bottom: 0; border-top: 1px solid var(--line); }
-  .picker-head b { font-size: 17px; }
-  .picker-head .dim, .picker-foot .dim { flex: 1; font: 13px ui-sans-serif, system-ui, sans-serif; color: var(--dim); }
+  .picker-head b { font-size: var(--t-read); }
+  .picker-head .dim, .picker-foot .dim { flex: 1; font: var(--t-sm) ui-sans-serif, system-ui, sans-serif; color: var(--dim); }
   #picker-list { overflow-y: auto; padding: 8px 12px 12px; }
 
   #picker-list details { border-bottom: 1px solid var(--line); }
   #picker-list details:last-child { border-bottom: 0; }
-  #picker-list summary { cursor: pointer; padding: 13px 8px; display: flex; align-items: baseline; gap: 10px; font: 600 15px ui-sans-serif, system-ui, sans-serif; }
+  #picker-list summary { cursor: pointer; padding: 13px 8px; display: flex; align-items: baseline; gap: 10px; font: 600 var(--t-ui) ui-sans-serif, system-ui, sans-serif; }
   #picker-list summary:hover { color: var(--accent); }
-  #picker-list summary .note { flex: 1; font-weight: 400; font-size: 12.5px; color: var(--dim); }
-  #picker-list summary .count { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--dim); }
+  #picker-list summary .note { flex: 1; font-weight: 400; font-size: var(--t-sm); color: var(--dim); }
+  #picker-list summary .count { font-variant-numeric: tabular-nums; font-size: var(--t-sm); color: var(--dim); }
 
   .prow {
     display: flex; align-items: baseline; gap: 11px; width: 100%; text-align: left;
     background: transparent; border: 0; border-radius: 8px; color: var(--ink);
-    padding: 9px 10px; font: 14px/1.45 "Iowan Old Style", Palatino, Georgia, serif;
+    padding: 9px 10px; font: var(--t-read)/1.5 "Iowan Old Style", Palatino, Georgia, serif;
   }
   .prow:hover { background: #ffffff0d; }
   .prow .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--dim); transform: translateY(-1px); }
   .prow.seen .dot { background: var(--dim); }
   .prow.solved .dot { background: var(--good); border-color: var(--good); }
   .prow.solved .t { color: var(--dim); }
-  .prow .n { flex: none; width: 26px; color: var(--dim); font: 12px ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  .prow .n { flex: none; width: 26px; color: var(--dim); font: var(--t-xs) ui-sans-serif, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
   .prow .t { flex: 1; }
   .prow .katex { font-size: 1em; }
 
@@ -212,7 +220,7 @@
     color: #23262f;
     border-radius: 16px;
     padding: 14px 18px;
-    font: 15px/1.5 ui-sans-serif, system-ui, sans-serif;
+    font: var(--t-ui)/1.5 ui-sans-serif, system-ui, sans-serif;
     box-shadow: 0 14px 30px -14px #000a;
     transition: opacity .25s, transform .25s;
   }
