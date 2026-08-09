@@ -4567,10 +4567,20 @@ function loadProblem(entry, greeting) {
 
 // The random draw walks a shuffled deck of unsolved problems, falling back to
 // the whole bank once every one of them has been proved.
+// Skipping keeps you inside the group you are working through, so a sitting
+// stays at one difficulty instead of lurching from a warm-up to the IMO. Once a
+// group is finished the draw walks forward along the ladder to the next group
+// with anything left, which is also how a fresh visitor starts on the warm-ups:
+// with no current problem the walk begins at the gentlest group.
 function nextProblem(greeting) {
-  deck = deck.filter(e => !solvedSet.has(e.id) && e !== current);
-  deck.length || (deck = shuffle(BANK.filter(e => !solvedSet.has(e.id) && e !== current)));
-  deck.length || (deck = shuffle(BANK.filter(e => e !== current)));
+  const unsolved = g => g.items.filter(e => !solvedSet.has(e.id) && e !== current);
+  const from = Math.max(0, GROUPS.findIndex(g => g.id === (current ? current.group : GROUPS[0].id)));
+  const ladder = GROUPS.slice(from).concat(GROUPS.slice(0, from));
+  const group = ladder.find(g => unsolved(g).length) || ladder[0];
+  // A fresh deck per group, so skipping cycles through it rather than repeating.
+  deck = deck.filter(e => e.group === group.id && !solvedSet.has(e.id) && e !== current);
+  deck.length || (deck = shuffle(unsolved(group)));
+  deck.length || (deck = shuffle(group.items.filter(e => e !== current)));
   loadProblem(deck.pop(), greeting);
 }
 
