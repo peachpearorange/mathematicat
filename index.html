@@ -273,7 +273,7 @@
     <div class="tag" id="tag">Problem 1</div>
     <div class="problem" id="problem">Waking the cat...</div>
 
-    <textarea id="proof" spellcheck="false"></textarea>
+    <textarea id="proof" spellcheck="false" autocomplete="off"></textarea>
 
     <div class="bar">
       <button id="submit">Submit</button>
@@ -4427,6 +4427,9 @@ const solvedSet = new Set(stored.solved || []), seenSet = new Set(stored.seen ||
 // What you have typed is kept per problem, so leaving one half-argued and
 // coming back to it, this sitting or next week, finds the words still there.
 const drafts = stored.drafts || {};
+// Set once the reader has typed into the box since this problem was put up, so
+// that the resync below can tell their words from a browser's restored ones.
+let typedHere = false;
 let streak = stored.streak || 0;
 
 function saveProgress() {
@@ -4572,6 +4575,7 @@ function loadProblem(entry, greeting) {
   reveal.classList.remove("open");
   reveal.innerHTML = "";
   proofBox.value = drafts[entry.id] || "";
+  typedHere = false;
   proofBox.disabled = submitBtn.disabled = giveupBtn.disabled = false;
   skipBtn.textContent = "Skip";
   skipBtn.classList.remove("lit");
@@ -4662,10 +4666,24 @@ proofBox.onkeydown = e => { (e.ctrlKey || e.metaKey) && e.key === "Enter" && sub
 // worst, without restringifying a long proof on every keystroke.
 let draftTimer = null;
 proofBox.oninput = () => {
+  typedHere = true;
   proofBox.value ? drafts[current.id] = proofBox.value : delete drafts[current.id];
   clearTimeout(draftTimer);
   draftTimer = setTimeout(saveProgress, 500);
 };
+// A browser refills a textarea from its own store without being asked: on a
+// reload, on a step back through history, and above all when it drops a
+// backgrounded tab to save memory and rebuilds it on return. That snapshot can
+// be older than the problem the saved pointer restores, which is how a proof
+// written for one problem turns up under another. So the box is re-asserted
+// from the draft after the restore has had its say, and since nobody can type
+// into a tab that is not there yet, anything typed since the problem went up is
+// the reader's and is left alone.
+const syncBox = () => { typedHere || (proofBox.value = drafts[current.id] || ""); };
+addEventListener("pageshow", syncBox);
+// Leaving the page cuts the debounce short, so write through while there is
+// still a page to write from.
+addEventListener("pagehide", () => { clearTimeout(draftTimer); saveProgress(); });
 skipBtn.onclick = () => {
   const won = skipBtn.classList.contains("lit");
   won || (streak = 0, saveProgress());
@@ -4736,8 +4754,14 @@ el("reset").onclick = () => {
         streak = 0, proofBox.value = "", saveProgress(), paintStatus());
 };
 
-// KaTeX is deferred, so re-render the first problem once it has loaded.
-addEventListener("load", () => current && renderMath(el("problem"), current.p));
+// KaTeX is deferred, so re-render the first problem once it has loaded. A
+// restore can land as late as this event, or a tick after it, so the box is
+// swept again here rather than trusting pageshow to have been the last word.
+addEventListener("load", () => {
+  current && renderMath(el("problem"), current.p);
+  syncBox();
+  setTimeout(syncBox, 400);
+});
 
 const resumed = BANK.find(e => e.id === stored.at);
 resumed
