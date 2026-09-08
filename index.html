@@ -180,13 +180,15 @@
 
   /* Wrong answer: repeated ruler smacks. Wide arc swung well clear of the body
      and a short cycle, so the ruler reads as weightless and whippy rather than
-     hefted. Snap down, small overshoot on impact, quick recovery. */
+     hefted. Snap down, small overshoot on impact, quick recovery. The raise
+     stops short of vertical: any higher and the ruler stands up over the
+     glasses, which is the one place it must never be. */
   #cat.sad #arm { animation: whack .21s cubic-bezier(.2,0,.12,1) 7; }
   @keyframes whack {
-    0%   { transform: rotate(-46deg) }
-    28%  { transform: rotate(62deg) }
-    42%  { transform: rotate(52deg) }
-    100% { transform: rotate(-46deg) }
+    0%   { transform: rotate(-25deg) }
+    28%  { transform: rotate(55deg) }
+    42%  { transform: rotate(45deg) }
+    100% { transform: rotate(-25deg) }
   }
   /* Only a slight lean: a light ruler doesn't drag the whole cat with it. */
   #cat.sad { animation: scold .21s ease-in-out 7; }
@@ -362,11 +364,12 @@
         <line x1="132" y1="86" x2="164" y2="80"/><line x1="132" y1="92" x2="163" y2="95"/>
       </g>
 
-    <!-- Drawn after the head, and angled up across it, so the ruler lies over
-         the face rather than off to one side. Paw at (112,124) is the pivot. -->
+    <!-- Drawn after the head, but swung out past the cheek to the upper right,
+         so the ruler is brandished beside the face and leaves the eyes and the
+         glasses clear. Paw at (112,124) is the pivot. -->
     <g id="arm">
-      <rect x="112" y="117.5" width="84" height="13" rx="3" transform="rotate(-132.6 112 124)" fill="url(#ruler)" stroke="#b8933d" stroke-width="1.5"/>
-      <g stroke="#9b7c2f" stroke-width="1.4" transform="rotate(-132.6 112 124)">
+      <rect x="112" y="117.5" width="84" height="13" rx="3" transform="rotate(-38 112 124)" fill="url(#ruler)" stroke="#b8933d" stroke-width="1.5"/>
+      <g stroke="#9b7c2f" stroke-width="1.4" transform="rotate(-38 112 124)">
         <line x1="126" y1="117.5" x2="126" y2="123"/>
         <line x1="140" y1="117.5" x2="140" y2="123"/>
         <line x1="154" y1="117.5" x2="154" y2="123"/>
@@ -4392,7 +4395,7 @@ GROUPS.forEach(g => {
 });
 
 // ---------------------------------------------------------------- state
-const MODEL = "deepseek/deepseek-v4-flash-0731";
+const MODEL = "z-ai/glm-5.3-flash";
 
 // The cat keeps its library card shredded in the litter tray and reassembles it
 // on the way out, so nothing in this file has the shape of a credential for an
